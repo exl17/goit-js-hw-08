@@ -68,56 +68,49 @@ const images = [
 
 const galleryContainer = document.getElementById("gallery");
 const fragment = document.createDocumentFragment();
+let instance;
 
+images.forEach((imageData) => {
+    const galleryItem = document.createElement("li");
+    galleryItem.classList.add("gallery-item");
 
-    images.forEach((imageData, index) => {
-        
-    
-        const galleryItem = document.createElement("li");
-        galleryItem.classList.add("gallery-item");
-        galleryItem.id = "gallery-item-" + (index + 1);
-       
-        
-        const galleryLink = document.createElement("a");
-        galleryLink.classList.add("gallery-link");
-        galleryLink.href = imageData.original;
-        
+    const galleryLink = document.createElement("a");
+    galleryLink.classList.add("gallery-link");
+    galleryLink.href = imageData.original;
 
-        galleryLink.addEventListener('click', function(event) {
+    galleryLink.addEventListener('click', function(event) {
         event.preventDefault();
+     instance = basicLightbox.create(`<img src="${imageData.original}" alt="${imageData.description}">`, {
+            onShow: () => {
+                document.addEventListener('keydown', handleKeyPress);
+            },
+            onClose: () => {
+                document.removeEventListener('keydown', handleKeyPress);
+            }
+        });
+        instance.show();
     });
 
-       
-        const imageElement = document.createElement("img");
-        imageElement.classList.add("gallery-image");
-        imageElement.src = imageData.preview;
-        imageElement.dataset.source = imageData.original;
-        imageElement.alt = imageData.description;
-        
+    const imageElement = document.createElement("img");
+    imageElement.classList.add("gallery-image");
+    imageElement.src = imageData.preview;
+  imageElement.alt = imageData.description;
+  imageElement.dataset.source = imageData.original;
 
-        galleryLink.appendChild(imageElement);
-        galleryItem.appendChild(galleryLink);
-        fragment.appendChild(galleryItem);
-        
-    });
-
-    
-galleryContainer.appendChild(fragment);
-    
-galleryContainer.addEventListener('click', e => {
-    if (e.target === e.currentTarget) return;
-
-    const liElem = e.target.closest('li');
-    const id = +liElem.dataset.id;
-    const galleryItem = images.find(el => el.id === id);
-    console.log(galleryItem);
-
-const instance = basicLightbox.create(``)
-
-instance.show()
-
+    galleryLink.appendChild(imageElement);
+    galleryItem.appendChild(galleryLink);
+    fragment.appendChild(galleryItem);
 });
 
+galleryContainer.appendChild(fragment);
+
+function handleKeyPress(event) {
+    if (event.key === 'Escape') {
+        instance.close();
+    }
+}
 
 
 
+
+  
