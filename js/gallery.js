@@ -67,8 +67,42 @@ const images = [
 
 
 const galleryContainer = document.getElementById("gallery");
-const fragment = document.createDocumentFragment();
 let instance;
+
+galleryContainer.addEventListener('click', function(event) {
+    const galleryLink = event.target.closest('.gallery-link');
+
+    if (galleryLink) {
+        event.preventDefault();
+
+        const imageData = {
+            original: galleryLink.href,
+            description: galleryLink.querySelector('img').alt,
+        };
+
+        if (!instance) {
+            instance = basicLightbox.create('', {
+                onShow: () => {
+                    document.addEventListener('keydown', handleKeyPress);
+                },
+                onClose: () => {
+                    document.removeEventListener('keydown', handleKeyPress);
+                }
+            });
+        }
+
+        instance.element().innerHTML = `<img src="${imageData.original}" alt="${imageData.description}">`;
+        instance.show();
+    }
+});
+
+function handleKeyPress(event) {
+    if (event.key === 'Escape') {
+        instance.close();
+    }
+}
+
+const fragment = document.createDocumentFragment();
 
 images.forEach((imageData) => {
     const galleryItem = document.createElement("li");
@@ -77,19 +111,6 @@ images.forEach((imageData) => {
     const galleryLink = document.createElement("a");
     galleryLink.classList.add("gallery-link");
     galleryLink.href = imageData.original;
-
-    galleryLink.addEventListener('click', function(event) {
-        event.preventDefault();
-     instance = basicLightbox.create(`<img src="${imageData.original}" alt="${imageData.description}">`, {
-            onShow: () => {
-                document.addEventListener('keydown', handleKeyPress);
-            },
-            onClose: () => {
-                document.removeEventListener('keydown', handleKeyPress);
-            }
-        });
-        instance.show();
-    });
 
     const imageElement = document.createElement("img");
     imageElement.classList.add("gallery-image");
@@ -104,13 +125,9 @@ images.forEach((imageData) => {
 
 galleryContainer.appendChild(fragment);
 
-function handleKeyPress(event) {
-    if (event.key === 'Escape') {
-        instance.close();
-    }
-}
-
 
 
 
   
+
+
